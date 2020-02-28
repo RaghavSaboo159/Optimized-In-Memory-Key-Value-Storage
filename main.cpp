@@ -84,7 +84,7 @@ int gib(int index){
     int l=0,r=100005,ans=-1;
     int mid=(l+r)/2;
     while(l<=r){
-         if(query(mid)>index){   
+         if(query(mid)>=index){   
             ans=mid;r=mid-1;
         }
         else{
@@ -96,9 +96,9 @@ int gib(int index){
     {
         if(ans==0)
             return ans;
-        else if(ans!=0 && arr[ans-1]!=index)
+        else if(ans!=0 && query(ans-1)!=index)
             return ans;
-        else if (ans !=0 && arr[ans-1]==index){
+        else if (ans !=0 && query(ans-1)==index){
             l=0,r=ans-1;mid=(l+r)/2;
             while(l<=r){
                 if(query(mid)==index){
@@ -150,7 +150,7 @@ int main(){
             arr[a]++; addf(a);
         } else {
             int a; cin>>a;
-            cout<<gi(a)<<endl;
+            cout<<gi(a)<<"="<<gib(a)<<endl;
         }
     }
 }
