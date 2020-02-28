@@ -84,7 +84,7 @@ int gib(int index){
     int l=0,r=100005,ans=-1;
     int mid=(l+r)/2;
     while(l<=r){
-         if(query[mid]>x){   
+         if(query(mid)>index){   
             ans=mid;r=mid-1;
         }
         else{
@@ -96,15 +96,15 @@ int gib(int index){
     {
         if(ans==0)
             return ans;
-        else if(ans!=0 && arr[ans-1]!=x)
+        else if(ans!=0 && arr[ans-1]!=index)
             return ans;
-        else if (ans !=0 && arr[ans-1]==x){
+        else if (ans !=0 && arr[ans-1]==index){
             l=0,r=ans-1;mid=(l+r)/2;
             while(l<=r){
-                if(query[mid]==x){
+                if(query(mid)==index){
                     ans=mid;r=mid-1;
                 }
-                else if(query[mid]>x)
+                else if(query(mid)>index)
                     r=mid-1;
                 else
                     l=mid+1;
