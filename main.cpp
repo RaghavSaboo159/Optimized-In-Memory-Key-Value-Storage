@@ -80,7 +80,42 @@ int query(int index){ index++; int su=0;
 int gi(int index){
     rep(10000) if(query(i)>=index) return i; return -1;
 }
-
+int gib(int index){
+    int l=0,r=100005,ans=-1;
+    int mid=(l+r)/2;
+    while(l<=r){
+         if(query[mid]>x){   
+            ans=mid;r=mid-1;
+        }
+        else{
+            l=mid+1;
+        }
+        mid=(l+r)/2;
+    }
+    if(ans>=0)
+    {
+        if(ans==0)
+            return ans;
+        else if(ans!=0 && arr[ans-1]!=x)
+            return ans;
+        else if (ans !=0 && arr[ans-1]==x){
+            l=0,r=ans-1;mid=(l+r)/2;
+            while(l<=r){
+                if(query[mid]==x){
+                    ans=mid;r=mid-1;
+                }
+                else if(query[mid]>x)
+                    r=mid-1;
+                else
+                    l=mid+1;
+                mid=(l+r)/2;
+            }
+            return ans;
+        }
+    }
+    else
+        return -1;
+}
 // end_fen_tree
 
 int main(){
