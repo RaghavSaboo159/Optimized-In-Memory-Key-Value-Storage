@@ -27,12 +27,18 @@ for(auto i:arr)if(brr.back()!=i)brr.append(i);return brr;}
 char decc[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 string rkey(){
     string s;
-    rep(10){ s+=decc[rand()%52]; }
+    rep(64){ s+=decc[rand()%52]; }
+    return s;
+}
+
+string rdat(){
+    string s;
+    rep(255){ s+=decc[rand()%52]; }
     return s;
 }
 
 void solve(){
-    cout<<rkey()<<" "<<rkey()<<endl;
+    cout<<rkey()<<" "<<rdat()<<endl;
 }
  
 int main(){

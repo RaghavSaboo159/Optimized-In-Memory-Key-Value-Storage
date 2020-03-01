@@ -14,6 +14,8 @@ LL *hasht[76527504+5];
 
 // Linked List
 bool eq(Slice *a, Slice *b){
+    //cout<<a->data<<" "<<b->data<<endl<<" compaired\n";
+    //cout<<(int)a->size<<" "<<(int)b->size<<endl;
     if(a->size!=b->size) return false;
     rep(a->size){
         if(a->data[i]!=b->data[i]) return false;
@@ -42,7 +44,7 @@ void ins(int ind, Slice *d, Slice *k){
     }
 }
 
-bool del(int ind,Slice *k){
+bool rdel(int ind,Slice *k){
     bool found=false;
     rep(arr[ind]){
         if(eq(hasht[ind][i].key,k)) found=true;
@@ -52,9 +54,11 @@ bool del(int ind,Slice *k){
     return found;
 }
 
-Slice *get(int ind,Slice *k){
-    rep(arr[ind]){ 
-        if(eq(hasht[ind][i].key,k)) return hasht[ind][i].data;    
+Slice *rget(int ind,Slice *k){
+    //cout<<"GETTING "<<k->data<<endl;
+    rep(arr[ind]){
+        //cout<<"checking "<<k->data<<" : "<<hasht[ind][i].key->data<<endl;
+        if(eq(hasht[ind][i].key,k)) return hasht[ind][i].data;
     } return NULL;
 }
 // end link list
@@ -78,10 +82,10 @@ int query(int index){ index++; int su=0;
 }
 
 int gi(int index){
-    rep(10000) if(query(i)>=index) return i; return -1;
+    rep(76527504) if(query(i)>=index) return i; return -1;
 }
 int gib(int index){
-    int l=0,r=100005,ans=-1;
+    int l=0,r=76527504,ans=-1;
     int mid=(l+r)/2;
     while(l<=r){
          if(query(mid)>=index){   
@@ -116,41 +120,147 @@ int gib(int index){
     else
         return -1;
 }
+
+int dec(char a){
+    if(a<'a') return a-'A'+1; else return a-'a'+27;
+}
+int shash(Slice *s){
+    int ret = 0; int up=1; // [9, 486, 26244, 1417176, 76527504]    
+    //cout<<s->data<<" "<<dec(s->data[0])<<endl;    
+    if(s->size>4) ret+=(dec(s->data[4])/6);    
+    if(s->size>3) ret+=(dec(s->data[3])*9);    
+    if(s->size>2) ret+=(dec(s->data[2])*486);    
+    if(s->size>1) ret+=(dec(s->data[1])*26244);    
+    if(s->size>0) ret+=(dec(s->data[0])*1417176);    
+    return ret;    
+}
+
 // end_fen_tree
 
+// class
+class kvStore {
+    public:
+    	kvStore(uint64_t max_entries){};
+        bool put(Slice &key,Slice &value){
+            //cout<<"PUT\n";
+            int index = shash(&key);
+            //if(true) cout<<"KEY "<<key.data<<endl;
+            //if(true) cout<<"DATA "<<value.data<<endl;
+            //cout<<"INDEX "<<index<<endl;
+            if(rget(index,&key)==NULL){
+                ins(index,&value,&key);
+                addf(index);
+                //if(true) gv(index);
+                return false;
+            } else {
+                rdel(index,&key);
+                ins(index,&value,&key);
+                //if(true) gv(index);
+                return true;
+            }
+        };
+        bool get(Slice &key , Slice & value){
+            //cout<<"GET"<<'\n';
+            int index = shash(&key);
+            //cout<<"GNDEX "<<index<<endl;
+            //cout<<"KEY "<<key.data<<endl;
+            //gv(index);
+            Slice *g = rget(index,&key);
+            //if(g==NULL) cout<<"ISNULL\n";
+            if(g==NULL) return false;
+            else if(eq(g,&value)) return true;
+            else return false;
+        };
+        bool del(Slice &key){
+            //cout<<"DEL"<<'\n';
+            int index = shash(&key);
+            if(rdel(index,&key)){
+                delf(index);
+                return true;
+            } else return false;
+        };
+        bool get(int n ,Slice& key, Slice& value ){
+            //cout<<"GETN\n";
+            int index = gib(n);
+            //int lndex = gi(n);
+            //cout<<index<<" "<<lndex<<endl;
+            if(index>0) n-=query(index-1); n--;
+            //cout<<index<<" "<<n<<" "<<arr[index]<<" "<<query(index-1)<<endl;
+            //cout<<hasht[index][n].key->data<<" "<<key.data<<endl;
+            //cout<<hasht[index][n].data->data<<" "<<value.data<<endl;
+            if(eq(hasht[index][n].key,&key)&&eq(hasht[index][n].data,&value)){
+                return true;
+            } else {
+                return false;
+            }
+        };
+        bool del(int n){
+            //cout<<"DELN\n";
+            int index = gib(n);
+            if(index>0) n-=query(index-1); n--;
+            return rdel(index,hasht[index][n].key);
+        };
+};
+
+// end class
+
+kvStore kv(10);
 int main(){
-    //rep(10){
-    //    Slice *d = new Slice, *k = new Slice; 
-    //    d->data = new char[64]; k->data = new char[255];
-    //    d->size = 10; k->size=10;
-    //    cin>>d->data>>k->data;
-    //    ins(0,d,k);
-    //    gv(0);
-    //    //cout<<d.data<<" "<<k.data<<endl;
-    //}
+    int n=10000000;
+    rep(n){
+        Slice *d = new Slice, *k = new Slice; 
+        k->data = new char[64]; d->data = new char[256];
+        d->size = 255; k->size=64;
+        cin>>k->data>>d->data;
+        //cout<<k->data<<" "<<d->data<<endl;
+        //ins(0,d,k);
+        //if(i==999999) cout<<k->data<<endl;
+        //kv.put(*k,*d);
+        if(i%100000==0) cout<<"AT "<<i<<endl;
+        //gv(0);
+        //cout<<d.data<<" "<<k.data<<endl;
+    }
+    while(false){
+        Slice *d = new Slice, *k = new Slice; 
+        d->data = new char[255]; k->data = new char[64];
+        d->size = 255; k->size=64;
+        cin>>k->data>>d->data;
+        int typ; cin>>typ;
+        if(typ==0){
+            cout<<kv.get(*k,*d)<<endl;
+        } else if(typ==1) {
+            cout<<kv.del(*k)<<endl;
+        } else if(typ==2) {
+            int nv; cin>>nv;
+            cout<<kv.get(nv,*k,*d)<<endl;
+        } else if(typ==3){
+            cout<<"Deleting\n";
+            int nv; cin>>nv; cout<<kv.del(n)<<endl;
+        }
+    }
     //while(true){
     //    Slice *d = new Slice, *k = new Slice; 
     //    d->data = new char[64]; k->data = new char[255];
     //    d->size = 10; k->size=10;
     //    cin>>k->data;
-    //    Slice *a = get(0,k);
+    //    Slice *a = rget(0,k);
     //    if(a!=NULL) cout<<a->data<<endl;
     //    del(0,k);
     //    gv(0);
     //}
-    rep(10000){
-        //cout<<"=======================================\n";
-        //rep(10) cout<<arr[i]<<" "; cout<<endl;
-        int type; cin>>type;
-        if(type==0){
-            int a; cin>>a;
-            arr[a]--; delf(a);
-        } else if(type==1) {
-            int a; cin>>a;
-            arr[a]++; addf(a);
-        } else {
-            int a; cin>>a;
-            cout<<gi(a)<<"="<<gib(a)<<endl;
-        }
-    }
+    //rep(10000){
+    //    //cout<<"=======================================\n";
+    //    //rep(10) cout<<arr[i]<<" "; cout<<endl;
+    //    int type; cin>>type;
+    //    if(type==0){
+    //        int a; cin>>a;
+    //        arr[a]--; rdelf(a);
+    //    } else if(type==1) {
+    //        int a; cin>>a;
+    //        arr[a]++; addf(a);
+    //    } else {
+    //        int a; cin>>a;
+    //        cout<<gi(a)<<"="<<gib(a)<<endl;
+    //    }
+    //}
 }
