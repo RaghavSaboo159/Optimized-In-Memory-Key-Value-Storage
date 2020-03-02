@@ -1,5 +1,6 @@
 #include <iostream>
 #include <stdlib.h>
+#include <time.h>
 using namespace std;
 #define rep(n) for(int i=0;i<(n);i++)
 #define jrep(n) for(int j=0;j<(n);j++)
@@ -17,8 +18,11 @@ bool eq(Slice *a, Slice *b){
     //cout<<a->data<<" "<<b->data<<endl<<" compaired\n";
     //cout<<(int)a->size<<" "<<(int)b->size<<endl;
     if(a->size!=b->size) return false;
+    //for(register int i=0;i<(a->size);i+=2){
+    //for(register int i=0;i<(a->size);i++){
     rep(a->size){
         if(a->data[i]!=b->data[i]) return false;
+        //if(a->data[i+1]!=b->data[i+1]) return false;
     } return true;
 }
 
@@ -39,7 +43,7 @@ void ins(int ind, Slice *d, Slice *k){
     arr[ind]++;
     hasht[ind] = (LL*) realloc(hasht[ind],arr[ind]*sizeof(LL));
     hasht[ind][arr[ind]-1].key = k; hasht[ind][arr[ind]-1].data = d;
-    for(int i=arr[ind]-2;i>=0;i--) if(les(hasht[ind][i+1],hasht[ind][i])){
+    for(register int i=arr[ind]-2;i>=0;i--) if(les(hasht[ind][i+1],hasht[ind][i])){
         LL tmp = hasht[ind][i+1]; hasht[ind][i+1]=hasht[ind][i]; hasht[ind][i]=tmp;
     }
 }
@@ -85,40 +89,25 @@ int gi(int index){
     rep(76527504) if(query(i)>=index) return i; return -1;
 }
 int gib(int index){
-    int l=0,r=76527504,ans=-1;
-    int mid=(l+r)/2;
+    int l=0,r=76527504,ans=-1; int mid=(l+r)/2;
     while(l<=r){
-         if(query(mid)>=index){   
-            ans=mid;r=mid-1;
-        }
-        else{
-            l=mid+1;
-        }
-        mid=(l+r)/2;
+         if(query(mid)>=index){ ans=mid;r=mid-1; }
+         else l=mid+1;
+         mid=(l+r)/2;
     }
-    if(ans>=0)
-    {
-        if(ans==0)
-            return ans;
-        else if(ans!=0 && query(ans-1)!=index)
-            return ans;
+    if(ans>=0) {
+        if(ans==0 || (ans!=0 && query(ans-1)!=index)) return ans;
         else if (ans !=0 && query(ans-1)==index){
             l=0,r=ans-1;mid=(l+r)/2;
             while(l<=r){
-                if(query(mid)==index){
-                    ans=mid;r=mid-1;
-                }
-                else if(query(mid)>index)
-                    r=mid-1;
-                else
-                    l=mid+1;
+                if(query(mid)==index){ ans=mid;r=mid-1; }
+                else if(query(mid)>index) r=mid-1;
+                else l=mid+1;
                 mid=(l+r)/2;
-            }
-            return ans;
+            } return ans;
         }
     }
-    else
-        return -1;
+    else return -1;
 }
 
 int dec(char a){
@@ -140,19 +129,23 @@ int shash(Slice *s){
 // class
 class kvStore {
     public:
-    	kvStore(uint64_t max_entries){};
+    	kvStore(uint64_t max_entries){
+            
+        };
         bool put(Slice &key,Slice &value){
             //cout<<"PUT\n";
             int index = shash(&key);
-            //if(true) cout<<"KEY "<<key.data<<endl;
+            if(true) cout<<"KEY "<<key.data<<endl;
             //if(true) cout<<"DATA "<<value.data<<endl;
             //cout<<"INDEX "<<index<<endl;
-            if(rget(index,&key)==NULL){
+            //if(rget(index,&key)==NULL){
+            if(true){
                 ins(index,&value,&key);
                 addf(index);
                 //if(true) gv(index);
                 return false;
             } else {
+                cout<<"here\n";
                 rdel(index,&key);
                 ins(index,&value,&key);
                 //if(true) gv(index);
@@ -205,39 +198,49 @@ class kvStore {
 // end class
 
 kvStore kv(10);
+#include<bits/stdc++.h>
 int main(){
     int n=10000000;
+    double tdiff = 0;
+    struct timespec st, en;
     rep(n){
         Slice *d = new Slice, *k = new Slice; 
-        k->data = new char[64]; d->data = new char[256];
+        k->data = new char[64]; d->data = new char[255];
         d->size = 255; k->size=64;
         cin>>k->data>>d->data;
         //cout<<k->data<<" "<<d->data<<endl;
-        //ins(0,d,k);
+        //ins(0,*d,*k);
         //if(i==999999) cout<<k->data<<endl;
-        //kv.put(*k,*d);
-        if(i%100000==0) cout<<"AT "<<i<<endl;
+        clock_gettime(CLOCK_MONOTONIC, &st);
+        kv.put(*k,*d);
+        clock_gettime(CLOCK_MONOTONIC, &en);
+        tdiff += (en.tv_sec - st.tv_sec) + 1e-9*(en.tv_nsec - st.tv_nsec);
+        if(i%100000==0) cout<<"AT "<<i/100000<<endl;
         //gv(0);
         //cout<<d.data<<" "<<k.data<<endl;
     }
-    while(false){
-        Slice *d = new Slice, *k = new Slice; 
-        d->data = new char[255]; k->data = new char[64];
-        d->size = 255; k->size=64;
-        cin>>k->data>>d->data;
-        int typ; cin>>typ;
-        if(typ==0){
-            cout<<kv.get(*k,*d)<<endl;
-        } else if(typ==1) {
-            cout<<kv.del(*k)<<endl;
-        } else if(typ==2) {
-            int nv; cin>>nv;
-            cout<<kv.get(nv,*k,*d)<<endl;
-        } else if(typ==3){
-            cout<<"Deleting\n";
-            int nv; cin>>nv; cout<<kv.del(n)<<endl;
-        }
-    }
+    cout<<tdiff<<endl;
+    map<int,int> ast;
+    rep(76527504) ast[arr[i]]++;
+    for(auto i:ast) cout<<i.first<<" : "<<i.second<<endl;
+    //while(false){
+    //    Slice *d = new Slice, *k = new Slice; 
+    //    d->data = new char[255]; k->data = new char[64];
+    //    d->size = 255; k->size=64;
+    //    cin>>k->data>>d->data;
+    //    int typ; cin>>typ;
+    //    if(typ==0){
+    //        cout<<kv.get(*k,*d)<<endl;
+    //    } else if(typ==1) {
+    //        cout<<kv.del(*k)<<endl;
+    //    } else if(typ==2) {
+    //        int nv; cin>>nv;
+    //        cout<<kv.get(nv,*k,*d)<<endl;
+    //    } else if(typ==3){
+    //        cout<<"Deleting\n";
+    //        int nv; cin>>nv; cout<<kv.del(n)<<endl;
+    //    }
+    //}
     //while(true){
     //    Slice *d = new Slice, *k = new Slice; 
     //    d->data = new char[64]; k->data = new char[255];

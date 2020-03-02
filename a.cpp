@@ -27,13 +27,13 @@ for(auto i:arr)if(brr.back()!=i)brr.append(i);return brr;}
 char decc[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 string rkey(){
     string s;
-    rep(64){ s+=decc[rand()%52]; }
+    rep(32){ s+=decc[rand()%52]; }
     return s;
 }
 
 string rdat(){
     string s;
-    rep(255){ s+=decc[rand()%52]; }
+    rep(128){ s+=decc[rand()%52]; }
     return s;
 }
 
