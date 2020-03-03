@@ -1,334 +1,276 @@
-#include<iostream>
-#include<bits/stdc++.h>
-
+#include <iostream>
 #include <stdlib.h>
+#include <time.h>
 using namespace std;
 #define rep(n) for(int i=0;i<(n);i++)
 #define jrep(n) for(int j=0;j<(n);j++)
+
+
+// globals
 int fen[76527504+6],arr[76527504+5];
-
-//struct Slice{ int size; char* data; };
+char decc[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 struct Slice{ uint8_t size; char* data; };
-struct LL{ Slice *data; Slice *key; LL *link; };
+struct LL{ Slice *data; Slice *key; };
 LL *hasht[76527504+5];
+// end globals
 
-bool lesser(Slice *a,Slice *b){
-    int n=a->size; if(n<(b->size)) n=b->size;
-    rep(n){
-        if((a->data[i])<(b->data[i])) return true;
-        else if((a->data[i])>(b->data[i])) return false;
+// Linked List
+Slice *nsl(Slice *s){
+    Slice *d = new Slice;
+    d->size = s->size;
+    d->data = new char[d->size];
+    for(int i=0;i<s->size;i++){ 
+        d->data[i] = s->data[i];
+        // d->data[i+1] = s->data[i+1];
+        // d->data[i+2] = s->data[i+2];
+        // d->data[i+3] = s->data[i+3];
     }
-    return a->size < b->size;
+    return d;
 }
-
 bool eq(Slice *a, Slice *b){
     if(a->size!=b->size) return false;
-    rep(a->size){
-        if(a->data[i]!=b->data[i]) return false;
-    } return true;
+    rep(a->size){ if(a->data[i]!=b->data[i]) return false; } return true;
 }
-void ins(int index, Slice *d, Slice *k)
-{
-    // cout << d << " " << k << endl;
-    if (hasht[index] == NULL)
-    {
-        hasht[index] = new LL;
-        hasht[index]->data = d;
-        hasht[index]->key = k;
-        hasht[index]->link = NULL;
-        cout << "1" << hasht[index]->key->data << endl;
-    }
-    else if (lesser(k, hasht[index]->key) == true)
-    {
-        LL *temp = new LL;
-        temp->key = hasht[index]->key;
-        temp->data = hasht[index]->data;
-        temp->link = NULL;
-        hasht[index]->key = k;
-        hasht[index]->data = d;
-        hasht[index]->link = temp;
-        cout << "0" << hasht[index]->key->data << hasht[index]->link->key->data << endl;
-    }
-    else
-    {
-        LL *itr = hasht[index];
+string sliceToStra(Slice& a) {
+    string ret = "";
 
-        while (1)
-        {
-            if (itr->link == NULL) // cout << temp->key->data << endl;
+    for (int i = 0; i < a.size; i++)
+        ret += a.data[i];
 
-            {
-                // cout << itr->key->data << endl;
-                if (lesser(itr->key, k) == true)
-                {
-                    itr->link = new LL;
-                    itr->link->data = d;
-                    itr->link->key = k;
-                    itr->link->link = NULL;
-                    // cout << "2" << itr->key->data << " " << itr->link->key->data << endl;
-                }
-                else
-                {
-                    LL *temp = new LL;
-                    temp->key = itr->key;
-                    temp->data = itr->data;
-                    temp->link = NULL;
-                    // temp->link = NULL;
-                    hasht[index]->data = d;
-                    hasht[index]->key = k;
-                    hasht[index]->link = temp;
-                    // cout << "3" << hasht[index]->key->data << " " << hasht[index]->link->key->data << endl;
-                }
-                break;
-            }
-            LL *cmp = itr->link;
-            // cout << "5" << cmp->key->data << " " << itr->key->data << endl;
-            if (lesser(cmp->key, k) == false && lesser(itr->key, k) == true)
-            {
-                // cout << cmp->key->data << " " << itr->key->data << endl;
-                LL *node = new LL;
-                // itr->link = node;
-                node->data = d;
-                node->key = k;
-                node->link = cmp;
-                itr->link = node;
-                // cout << "4" << itr->key->data << " " << itr->link->key->data << " " << itr->link->link->key->data << endl;
-                break;
-            }
-            LL *temp = new LL;
-            temp = cmp;
-            cmp = cmp->link;
-            itr = temp;
-            // while(!(itr->link==NULL)) itr=itr->link;
-        } // itr->link = new LL; itr->link->data=d; itr->link->key = k;
-    }
-}
-
-
-void gv(int index){
-    LL *head = hasht[index];
-    long long cnt=0;
-    // cout<<arr[index]<<endl:
-    while(head!=NULL){
-        cout<<(head->key->data)<<" ";
-         head=head->link;
-         cnt++;
-    } cout<<cnt<<endl;
-}
-
-bool oget(int index,Slice *key ){
-    LL *head = hasht[index];
-    while(head!=NULL){
-        //cout<<head->data->data<<":"<<(head->key->data)<<"  "; 
-        if(eq(head->key,key)) return true;
-        head=head->link;
-    } return false;
-}
-bool oget1(int index,Slice *key ,Slice *value){
-    LL *head = hasht[index];
-    while(head!=NULL){
-        //cout<<head->data->data<<":"<<(head->key->data)<<"  "; 
-        if(eq(head->key,key) && eq(head->data,value)) return true;
-        head=head->link;
-    } return false;
-}
-
-
-void odel(int index,Slice *key){
-    LL *head = hasht[index];
-    if(head==NULL){ delete hasht[index]; hasht[index]=NULL; return; }
-    if(eq(head->key,key)){ hasht[index]=head->link; delete head; return; }
-    while(head->link!=NULL){
-        if(eq(head->link->key,key)){
-            LL *td = head->link;
-            head->link = head->link->link; delete td;
-            return;
-        }
-        head=head->link;
-    }
-}
-
-int dec(char a){
-    if(a<'a') return a-'A'+1; else return a-'a'+27;
-}
-int shash(Slice *s){
-    int ret = 0; int up=1; // [9, 486, 26244, 1417176, 76527504]
-    //cout<<s->data<<" "<<dec(s->data[0])<<endl;
-    if(s->size>4) ret+=(dec(s->data[4])/6);
-    if(s->size>3) ret+=(dec(s->data[3])*9);
-    if(s->size>2) ret+=(dec(s->data[2])*486);
-    if(s->size>1) ret+=(dec(s->data[1])*26244);
-    if(s->size>0) ret+=(dec(s->data[0])*1417176);
     return ret;
 }
 
-char decc[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+void gv(int index){ rep(arr[index]) cout<<sliceToStra(*hasht[index][i].key)<<" "; cout<<endl; }
+bool les(LL a, LL b){
+    int n=a.key->size; if(n>(b.key->size)) n=b.key->size;
+    rep(n){
+        if((a.key->data[i])<(b.key->data[i])) return true;    
+        else if((a.key->data[i])>(b.key->data[i])) return false;    
+    } return a.key->size < b.key->size;
+}
+void ins(int ind, Slice *d, Slice *k){
+    // cout<<"insert called\n";
+    // cout<<arr[ind]<<" BEFORE "<<endl;
+    arr[ind]++;
+    // cout<<arr[ind]<<endl;
+    hasht[ind] = (LL*) realloc(hasht[ind],arr[ind]*sizeof(LL));
 
-Slice *rkey(){
-    Slice *ret = new Slice;
-    ret->size = 64; ret->data = new char[64];
-    rep(64){ ret->data[i] = decc[rand()%52]; }
-    return ret;
+    hasht[ind][arr[ind]-1].key = k; hasht[ind][arr[ind]-1].data = d;
+    for(int i=arr[ind]-2;i>=0;i--) if(les(hasht[ind][i+1],hasht[ind][i])){
+        LL tmp = hasht[ind][i+1]; hasht[ind][i+1]=hasht[ind][i]; hasht[ind][i]=tmp;
+    }
+}
+bool rdel(int ind,Slice *k,bool tp=false){
+    if(tp) cout<<k->data<<" "<<(int)k->size<<endl;
+    // if(k->data[0]=='H'&&k->size==1){ cout<<"CHECK FOR H rdel\n"; }
+    // if(k->data[0]=='H'){ cout<<"CHECK FOR H rdel\n"; }
+    bool found=false;
+    rep(arr[ind]){
+        if(eq(hasht[ind][i].key,k)) found=true;
+        if(found) hasht[ind][i]=hasht[ind][i+1];
+    }
+    if(k->data[0]=='H'&&k->size==1) cout<<found<<endl;
+    if(found) arr[ind]--,hasht[ind] = (LL*) realloc(hasht[ind],arr[ind]*sizeof(LL));
+    return found;
+}
+Slice *rget(int ind,Slice *k){
+    rep(arr[ind]){ if(eq(hasht[ind][i].key,k)) return hasht[ind][i].data; } return NULL;
 }
 
-Slice *rval(){
-    Slice *ret = new Slice;
-    ret->size = 255; ret->data = new char[255];
-    rep(255){ ret->data[i] = decc[rand()%52]; }
-    return ret;
+// end link list
+
+// hash
+int dec(char a){    
+    if(a<'a') return a-'A'+1; else return a-'a'+27;    
+}    
+int shash(Slice *s){    
+    int ret = 0; int up=1; // [9, 486, 26244, 1417176, 76527504]        
+    //cout<<s->data<<" "<<dec(s->data[0])<<endl;        
+    if(s->size>4) ret+=(dec(s->data[4])/6);        
+    if(s->size>3) ret+=(dec(s->data[3])*9);        
+    if(s->size>2) ret+=(dec(s->data[2])*486);        
+    if(s->size>1) ret+=(dec(s->data[1])*26244);        
+    if(s->size>0) ret+=(dec(s->data[0])*1417176);        
+    return ret;        
 }
+// end hash
 
-
-
-void addf(int index){
-    arr[index]++; index++;
+// fenwick
+void addf(int index){ index++;
     while(index<=76527504) fen[index]++,index+=(index&-index);
 }
-
-void delf(int index){
-    arr[index]--; index++;
+void delf(int index){ index++;
     while(index<=76527504) fen[index]--,index+=(index&-index);
 }
-
 int query(int index){ index++; int su=0;
-    while(index>0)
-        su+=fen[index],index-=(index&-index);
+    while(index>0) su+=fen[index],index-=(index&-index);
     return su;
 }
-
-int lb(int *n){
-    int mx = 76527504; int mi=0; int md=(mx+mi)/2;
-    while(mi<mx){
-        int s = query(md);
-        if(s<(*n)){
-            mi=md+1;
-        } else mx=md-1;
-        md = (mx+mi)/2;
+int gib(int index){
+    int l=0,r=76527504,ans=-1; int mid=(l+r)/2;
+    while(l<=r){
+         if(query(mid)>=index){ ans=mid;r=mid-1; }
+         else l=mid+1;
+         mid=(l+r)/2;
     }
-    md+=3; while(query(md)>(*n)) md--;
-    (*n)-=query(md);
-    if(*n==0){ while(arr[md]==0) md--; }
-    else{ while(arr[md]==0) md++; }
-    // cout<<md<<" "<<arr[md]<<" "<<*n<<endl;
-    return md;
+    if(ans>=0) {
+        if(ans==0 || (ans!=0 && query(ans-1)!=index)) return ans;
+        else if (ans !=0 && query(ans-1)==index){
+            l=0,r=ans-1;mid=(l+r)/2;
+            while(l<=r){
+                if(query(mid)==index){ ans=mid;r=mid-1; }
+                else if(query(mid)>index) r=mid-1;
+                else l=mid+1;
+                mid=(l+r)/2;
+            } return ans;
+        }
+    }
+    else return -1;
 }
+// end fenwick
 
-Slice getNK(int n){
-    int index = lb(&n);
-    LL *head = hasht[index];
-    //cout<<n<<endl;
-    rep(n-1) head=head->link;
-    return *(head->data);
-}
-
-bool getN(int n ,Slice *key , Slice * value){
-    cout<<"n value"<<";"<<n<<"\n";
-    int index = lb(&n);
-    cout<<"happen"<<":"<< index<<"\n";
-    LL *head = hasht[index];
-    cout<<"happen1"<<":"<< index<<"\n";
-    gv(index);
-
-    cout<<n<<" "<<arr[index]<<endl;
-    rep(n-1) head = head->link;
-    cout<<head->key<<";"<<key<<"\n";
-    cout<<head->data<<";"<<value<<"\n";
-
-    if (eq((head->key), key) && eq((head->data),value))
-    	return true;
-    else
-    	return false;
-}
-
+// class
 class kvStore {
     public:
     	kvStore(uint64_t max_entries){};
         bool put(Slice &key,Slice &value){
-            cout<<"PUT"<<'\n';
+            // cout<<"PUT\n";
             int index = shash(&key);
-            bool ret = oget(index,&key);
-            if(ret) odel(index,&key);
-            ins(index, &value, &key);
-            addf(index);
-            return ret;
-        };
-        bool get(Slice &key , Slice & value){
-            cout<<"GET"<<'\n';
-            
-            int index = shash(&key);
-            return oget1(index, &key , &value);
-        };
-        bool del(Slice &key){
-            cout<<"DELK"<<'\n';
-            
-            int index = shash(&key);
-            delf(index);
-            if(oget(index,&key)){
-                odel(index,&key);    
+            Slice *ckey = nsl(&key);
+            Slice *cvalue = nsl(&value);
+            bool tp=false;
+            // if(key.data[0]=='H'&&key.size==1){ 
+                // cout<<"CHECK FOR H put\n";
+                // tp=true;
+            // }
+            if(rget(index,&key)==NULL){
+                // if(key.data[0]=='H'&&key.size==1) cout<<"HERE\n";
+                ins(index,cvalue,ckey);
+                addf(index);
+                return false;
+            } else {
+                //cout<<"here\n";
+                rdel(index,&key);
+                ins(index,cvalue,ckey);
                 return true;
             }
-            return false;
+        };
+        bool get(Slice &key , Slice & value){
+            // cout<<"GET"<<'\n';
+            int index = shash(&key);
+            // cout<<key.data<<endl;
+            Slice *g = rget(index,&key);
+            // if(g==NULL) cout<<"NOT FOUND\n";
+            if(g==NULL) return false;
+            value = *g;
+            return true;
+            // else if(eq(g,&value)) return true;
+            // else return false;
+        };
+        bool del(Slice &key){
+            int index = shash(&key);
+            if(rdel(index,&key)){
+                delf(index);
+                return true;
+            } else return false;
         };
         bool get(int n ,Slice& key, Slice& value ){
-            cout<<"getN"<<'\n';
-            
-            return getN(n , &key , &value);
+            n++;
+            int index = gib(n);
+            // cout<<index<<" "<<n<<" "<<query(index-1)<<endl;
+            if(index>0) n-=(query(index-1)+1);
+            else n--;
+            key = *hasht[index][n].key;
+            value = *hasht[index][n].data;
+            // cout<<key.data<<endl;
+            return true;
         };
         bool del(int n){
-            cout<<"DELN"<<'\n';
-            
-            Slice key = getNK(n);
-            int index = shash(&key);
-            odel(index,&key);
+            n++;
+            int index = gib(n);
+            // cout<<index<<" "<<n<<" "<<query(index-1)<<endl;
+            if(index>0) n-=(query(index-1)+1);
+            else n--;
+            Slice *key = hasht[index][n].key;
+            // cout<<key->data<<endl;
+            // int index=0;
+            // Slice *key = hasht[index][n].key;
+            rdel(index,key);
             delf(index);
             return true;
         };
 };
-int main(){    
-    rep(10){    
-        Slice d,k;     
-        d.data = new char[64]; k.data = new char[255];    
-        cin>>d.data>>k.data;    
-        ins(0,&d,&k);    
-        //cout<<d.data<<" "<<k.data<<endl;    
-    }    
-    gv(0);   
-} 
 
+// end class
 
-//kvStore ks;
-//map<string,string> mp;
-//#include<time.h>
-//#include <unistd.h>
+// kvStore kv(10);
+// #include<bits/stdc++.h>
 // int main(){
-    //LL *hashta = (LL*)maintoc((76527504+5)*sizeof(long long int));
-    //rep(1000000){
-        //Slice *a = rkey(); Slice *d = rval();
-        //vrr.push_back({*a,*d});
-        //cout<<a->data<<" "<<d->data<<endl;
-        //int index = shash(a);
-        //ins(index,d,a);
-        //string key = a->data;
-        //string val = d->data;
-        //mp[key]=val;
-        //ks.put(*a,*d);
-        //usleep(1000000);
-        //if(i==1231) nth = *d;
-        //cout<<ks.get(*a)<<endl;
-        //odel(index,a);
-        //addf(index);
-        //cout<<get(shash(a),a)<<endl;
-        //if(i%100000==0) cout<<i<<endl;
-    //}
-    //int iter=0;
-    //for(auto i:mp){
-    //    if(iter==1231){
-    //        cout<<i.second<<endl;
-    //    }
-    //    iter++;
-    //}
-    //cout<<ks.get(1232).data<<endl;
-    //cout<<ks.del(1231)<<endl;
-    //cout<<ks.get(1231).data<<endl;
-    //cout<<"DONE!!\n";
+//     int n=10000000;
+//     double tdiff = 0;
+//     struct timespec st, en;
+//     rep(n){
+//         Slice *d = new Slice, *k = new Slice; 
+//         k->data = new char[32]; d->data = new char[128];
+//         d->size = 128; k->size=32;
+//         cin>>k->data>>d->data;
+//         //cout<<k->data<<" "<<d->data<<endl;
+//         //ins(0,*d,*k);
+//         //if(i==999999) cout<<k->data<<endl;
+//         clock_gettime(CLOCK_MONOTONIC, &st);
+//         kv.put(*k,*d);
+//         clock_gettime(CLOCK_MONOTONIC, &en);
+//         tdiff += (en.tv_sec - st.tv_sec) + 1e-9*(en.tv_nsec - st.tv_nsec);
+//         if(i%100000==0) cout<<"AT "<<i/100000<<endl;
+//         //gv(0);
+//         //cout<<d.data<<" "<<k.data<<endl;
+//     }
+//     cout<<tdiff<<endl;
+// }
+//     map<int,int> ast;
+//     rep(76527504) ast[arr[i]]++;
+//     for(auto i:ast) cout<<i.first<<" : "<<i.second<<endl;
+//     //while(false){
+//     //    Slice *d = new Slice, *k = new Slice; 
+//     //    d->data = new char[255]; k->data = new char[64];
+//     //    d->size = 255; k->size=64;
+//     //    cin>>k->data>>d->data;
+//     //    int typ; cin>>typ;
+//     //    if(typ==0){
+//     //        cout<<kv.get(*k,*d)<<endl;
+//     //    } else if(typ==1) {
+//     //        cout<<kv.del(*k)<<endl;
+//     //    } else if(typ==2) {
+//     //        int nv; cin>>nv;
+//     //        cout<<kv.get(nv,*k,*d)<<endl;
+//     //    } else if(typ==3){
+//     //        cout<<"Deleting\n";
+//     //        int nv; cin>>nv; cout<<kv.del(n)<<endl;
+//     //    }
+//     //}
+//     //while(true){
+//     //    Slice *d = new Slice, *k = new Slice; 
+//     //    d->data = new char[64]; k->data = new char[255];
+//     //    d->size = 10; k->size=10;
+//     //    cin>>k->data;
+//     //    Slice *a = rget(0,k);
+//     //    if(a!=NULL) cout<<a->data<<endl;
+//     //    del(0,k);
+//     //    gv(0);
+//     //}
+//     //rep(10000){
+//     //    //cout<<"=======================================\n";
+//     //    //rep(10) cout<<arr[i]<<" "; cout<<endl;
+//     //    int type; cin>>type;
+//     //    if(type==0){
+//     //        int a; cin>>a;
+//     //        arr[a]--; rdelf(a);
+//     //    } else if(type==1) {
+//     //        int a; cin>>a;
+//     //        arr[a]++; addf(a);
+//     //    } else {
+//     //        int a; cin>>a;
+//     //        cout<<gi(a)<<"="<<gib(a)<<endl;
+//     //    }
+//     //}
 // }

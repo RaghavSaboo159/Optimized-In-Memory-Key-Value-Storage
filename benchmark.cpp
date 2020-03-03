@@ -121,6 +121,7 @@ int main()
 {
 	for(int i=0;i<100000;i++)
 	{
+		if(i%1000==0) cout<<i<<endl;
 		string key = random_key(rand()%64 + 1);
 		string value = random_value(rand()%255 + 1);
 		db[key] = value;
@@ -130,12 +131,18 @@ int main()
 		kv.put(k,v);
 		db_size = db.size();
 	}
-
+	// gv();
+	// return 0;
 	bool incorrect = false;
 
-	for(int i=0;i<10000;i++)
+	for(int i=0;i<100000;i++)
 	{
 		int x = rand()%5;
+		if(incorrect){
+			
+			break;
+		}
+        cout<<i<<", "<<x<<" => "<<incorrect<<endl;
 		if(x==0)
 		{
 			string key = random_key(rand()%64 + 1);
@@ -166,6 +173,7 @@ int main()
 		}
 		else if(x==2)
 		{
+			// cout<<db_size<<endl;
 			int rem = rand()%db_size;
 			map<string,string>:: iterator itr = db.begin();
 			advance(itr,rem);
@@ -187,8 +195,15 @@ int main()
 			bool check = kv.get(rem,s_key,s_value);
 			map<string,string>:: iterator itr = db.begin();
 			for(int i=0;i<rem;i++)itr++;
-			if( itr->first != sliceToStr(s_key) || itr->second != sliceToStr(s_value))
+
+			if( itr->first != sliceToStr(s_key) || itr->second != sliceToStr(s_value)){
 				incorrect = true;
+				// gv(0);
+				// cout<<"-----\n";
+				// for(auto i:db) cout<<i.first<<" "; cout<<endl;
+				// cout<<itr->first<<endl;
+				cout<<rem<<endl;
+			}
 		}
 		else if(x==4)
 		{
@@ -197,6 +212,7 @@ int main()
 			for(int i=0;i<rem;i++)itr++;
 			string key = itr->first;
 			bool check = kv.del(rem);
+			// cout<<key<<endl;
 			db.erase(itr);
 			db_size--;
 			Slice s_key,s_value;
@@ -209,6 +225,10 @@ int main()
 	if(incorrect == true)
 	{
 		cout<<0<<endl;
+		return 0;
+	}
+	else{
+		cout<<"CORRECT\n";
 		return 0;
 	}
 	int threads = 1;

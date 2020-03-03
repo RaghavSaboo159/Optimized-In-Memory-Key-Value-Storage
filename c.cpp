@@ -24,19 +24,36 @@ y=y>>1;x=(x*x)%p;} return r; } vector<ll> uniq(vector<ll> arr)
 for(auto i:arr)if(brr.back()!=i)brr.append(i);return brr;}
 
 ll arr[1000006];
+struct Slice{ uint8_t size; char* data; };
+
+int dec(char a){
+    if(a<'a') return a-'A'+1; else return a-'a'+27;
+}
+int shash(Slice *s){
+    int ret = 0; int up=1; // [9, 486, 26244, 1417176, 76527504]    
+    //cout<<s->data<<" "<<s->size<<endl;    
+    if(s->size>4) ret+=(dec(s->data[4])/6);    
+    if(s->size>3) ret+=(dec(s->data[3])*9);    
+    if(s->size>2) ret+=(dec(s->data[2])*486);    
+    if(s->size>1) ret+=(dec(s->data[1])*26244);    
+    if(s->size>0) ret+=(dec(s->data[0])*1417176);    
+    return ret;    
+}
+
 void solve(){
-    rep(10000){
-        int type = rand()%3;
-        int a=rand()%10000;
-        if(type<2) cout<<1<<" "<<a<<endl;
-        else cout<<type<<" "<<a/100<<endl;
-    }
+    Slice *d = new Slice, *k = new Slice;
+    int sz; cin>>sz;
+    k->data = new char[sz];
+    k->size = sz;
+    cin>>k->data;
+    cout<<k->data<<" => ";
+    cout<<shash(k)<<endl;
 }
  
 int main(){
-    ffast
+    //ffast
     ll t=1;
-    //cin>>t;
+    cin>>t;
     rep(t) solve();
 }
  
